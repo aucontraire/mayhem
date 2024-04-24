@@ -3,20 +3,18 @@ package com.mm.mayhem.model.db.geo;
 import com.mm.mayhem.model.db.BaseModel;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@Table(name = "country")
-public class Country extends BaseModel {
+@Table(name = "state_region")
+public class StateRegion extends BaseModel {
     @Id
     private Long id;
 
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<StateRegion> stateRegions = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
 
     public Long getId() {
         return id;
@@ -34,11 +32,11 @@ public class Country extends BaseModel {
         this.name = name;
     }
 
-    public List<StateRegion> getStateRegions() {
-        return stateRegions;
+    public Country getCountry() {
+        return country;
     }
 
-    public void setStateRegions(List<StateRegion> stateRegions) {
-        this.stateRegions = stateRegions;
+    public void setCountry(Country country) {
+        this.country = country;
     }
 }
