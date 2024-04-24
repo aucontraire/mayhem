@@ -51,23 +51,23 @@ public class CountryServiceTest {
     public void testGetCountryByName_Exists() {
         Country expectedCountry = new Country();
         expectedCountry.setName("Mexico");
-        when(countryRepository.findByName("Mexico")).thenReturn(Optional.of(expectedCountry));
+        when(countryRepository.findCountryByName("Mexico")).thenReturn(Optional.of(expectedCountry));
 
         Optional<Country> actualOptionalCountry = countryService.getCountryByName("Mexico");
 
         assertTrue(actualOptionalCountry.isPresent(), "Country should be present");
         Country actualCountry = actualOptionalCountry.get();
         assertEquals(expectedCountry, actualCountry, "Country should match");
-        verify(countryRepository).findByName("Mexico");
+        verify(countryRepository).findCountryByName("Mexico");
     }
 
     @Test
     public void testGetCountryByName_NotExists() {
-        when(countryRepository.findByName("Mexico")).thenReturn(Optional.empty());
+        when(countryRepository.findCountryByName("Mexico")).thenReturn(Optional.empty());
 
         Optional<Country> actualOptionalCountry = countryService.getCountryByName("Mexico");
 
         assertFalse(actualOptionalCountry.isPresent(), "Country should not be present");
-        verify(countryRepository).findByName("Mexico");
+        verify(countryRepository).findCountryByName("Mexico");
     }
 }

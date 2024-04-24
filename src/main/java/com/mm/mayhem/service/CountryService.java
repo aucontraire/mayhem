@@ -20,5 +20,5 @@ public class CountryService {
         return countryRepository.findById(id);
     }
 
-    public Optional<Country> getCountryByName(String name) { return countryRepository.findByName(name); }
+    public Optional<Country> getCountryByName(String name) { return countryRepository.findCountryByName(name); }
 }
