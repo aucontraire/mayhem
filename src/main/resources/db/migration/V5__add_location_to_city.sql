@@ -1,0 +1,1 @@
+ALTER TABLE city ADD location geography(point);

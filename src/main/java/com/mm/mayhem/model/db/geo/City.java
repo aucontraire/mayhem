@@ -2,6 +2,8 @@ package com.mm.mayhem.model.db.geo;
 
 import com.mm.mayhem.model.db.BaseModel;
 import jakarta.persistence.*;
+import org.locationtech.jts.geom.Point;
+
 
 @Entity
 @Table(name = "city")
@@ -11,6 +13,9 @@ public class City extends BaseModel {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "location")
+    private Point location;
 
     @ManyToOne
     @JoinColumn(name = "state_region_id")
@@ -30,6 +35,12 @@ public class City extends BaseModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Point getLocation() { return location; }
+
+    public void setLocation(Point location) {
+        this.location = location;
     }
 
     public StateRegion getStateRegion() {
