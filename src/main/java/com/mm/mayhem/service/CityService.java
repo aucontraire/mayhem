@@ -7,7 +7,6 @@ import com.mm.mayhem.repository.CityRepository;
 import com.mm.mayhem.utils.GeographyUtil;
 import org.locationtech.jts.geom.Point;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +21,8 @@ public class CityService {
     public CityService(CityRepository cityRepository) {
         this.cityRepository = cityRepository;
     }
+
+    public List<City> getAllCities() { return cityRepository.findAll(); }
 
     public Optional<City> getCityById(Long id) {
         return cityRepository.findById(id);
@@ -39,7 +40,7 @@ public class CityService {
         return cityRepository.findCityByNameAndStateRegionName(cityName, stateRegionName);
     }
 
-    public City saveCityWithLocation(@NotNull City city, Double latitude, Double longitude) {
+    public City saveCityWithLocation(City city, Double latitude, Double longitude) {
         Point point = GeographyUtil.createPoint(latitude, longitude);
         city.setLocation(point);
         return cityRepository.save(city);
