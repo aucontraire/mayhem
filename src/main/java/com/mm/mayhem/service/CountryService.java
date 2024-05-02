@@ -24,4 +24,9 @@ public class CountryService {
     }
 
     public Optional<Country> getCountryByName(String name) { return countryRepository.findCountryByName(name); }
+
+    public Country saveCountryWithCountryCode(Country country, String countryCode) {
+        country.setCountryCode(countryCode);
+        return countryRepository.save(country);
+    }
 }
