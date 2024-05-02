@@ -15,6 +15,9 @@ public class Country extends BaseModel {
     @Column(name = "name", unique = true)
     private String name;
 
+    @Column(name = "country_code", unique = true)
+    private String countryCode;
+
     @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StateRegion> stateRegions = new ArrayList<>();
 
