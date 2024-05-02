@@ -18,6 +18,8 @@ public class StateRegionService {
         this.stateRegionRepository = stateRegionRepository;
     }
 
+    public List<StateRegion> getAllStateRegions() { return stateRegionRepository.findAll(); }
+
     public Optional<StateRegion> getStateRegionById(Long id) {
         return stateRegionRepository.findById(id);
     }
