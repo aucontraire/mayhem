@@ -37,6 +37,14 @@ public class Country extends BaseModel {
         this.name = name;
     }
 
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
     public List<StateRegion> getStateRegions() {
         return stateRegions;
     }
