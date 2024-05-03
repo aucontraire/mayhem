@@ -40,6 +40,10 @@ public class CityService {
         return cityRepository.findCityByNameAndStateRegionName(cityName, stateRegionName);
     }
 
+    public Optional<List<City>> getCitiesByLocationIsNotNull() {
+        return cityRepository.findCitiesByLocationIsNotNull();
+    }
+
     public Optional<List<City>> getCitiesByLocationIsNull() {
         return cityRepository.findCitiesByLocationIsNull();
     }
