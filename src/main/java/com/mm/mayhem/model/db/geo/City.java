@@ -2,6 +2,7 @@ package com.mm.mayhem.model.db.geo;
 
 import com.mm.mayhem.model.db.BaseModel;
 import jakarta.persistence.*;
+import org.apache.commons.text.WordUtils;
 import org.locationtech.jts.geom.Point;
 
 
@@ -30,6 +31,13 @@ public class City extends BaseModel {
     }
 
     public String getName() {
+        return name;
+    }
+
+    public String getStandardizedName() {
+        if (name.equals(name.toUpperCase())) {
+            return WordUtils.capitalizeFully(name);
+        }
         return name;
     }
 
