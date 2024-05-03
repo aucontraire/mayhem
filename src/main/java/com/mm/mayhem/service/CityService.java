@@ -40,6 +40,10 @@ public class CityService {
         return cityRepository.findCityByNameAndStateRegionName(cityName, stateRegionName);
     }
 
+    public Optional<List<City>> getCitiesByLocationIsNull() {
+        return cityRepository.findCitiesByLocationIsNull();
+    }
+
     public City saveCityWithLocation(City city, Double latitude, Double longitude) {
         Point point = GeographyUtil.createPoint(latitude, longitude);
         city.setLocation(point);

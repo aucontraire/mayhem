@@ -15,4 +15,6 @@ public interface CityRepository extends JpaRepository<City, Long> {
     Optional<City> findCityByNameAndStateRegion(String name, StateRegion stateRegion);
 
     Optional<City> findCityByNameAndStateRegionName(String cityName, String stateRegionName);
+
+    Optional<List<City>> findCitiesByLocationIsNull();
 }
