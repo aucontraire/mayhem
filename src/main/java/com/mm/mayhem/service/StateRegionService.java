@@ -35,4 +35,8 @@ public class StateRegionService {
     public Optional<StateRegion> getStateRegionByNameAndCountryName(String stateRegionName, String countryName) {
         return stateRegionRepository.findStateRegionByNameAndCountryName(stateRegionName, countryName);
     }
+
+    public Optional<List<StateRegion>> getStateRegionsByCountry(Country country) {
+        return stateRegionRepository.findStateRegionsByCountry(country);
+    }
 }

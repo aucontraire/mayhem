@@ -13,4 +13,5 @@ public interface StateRegionRepository extends JpaRepository<StateRegion, Long> 
     Optional<List<StateRegion>> findStateRegionsByName(String name);
     Optional<StateRegion> findStateRegionByNameAndCountry(String name, Country country);
     Optional<StateRegion> findStateRegionByNameAndCountryName(String stateRegionName, String countryName);
+    Optional<List<StateRegion>> findStateRegionsByCountry(Country country);
 }

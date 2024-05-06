@@ -1,5 +1,6 @@
 package com.mm.mayhem.model.db.geo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mm.mayhem.model.db.BaseModel;
 import jakarta.persistence.*;
 
@@ -15,6 +16,7 @@ public class StateRegion extends BaseModel {
     @Column(name = "name")
     private String name;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "country_id")
     private Country country;
@@ -38,6 +40,7 @@ public class StateRegion extends BaseModel {
         this.name = name;
     }
 
+    @JsonIgnore
     public Country getCountry() {
         return country;
     }

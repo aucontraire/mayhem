@@ -1,5 +1,8 @@
 package com.mm.mayhem.model.db.geo;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mm.mayhem.model.db.BaseModel;
 import jakarta.persistence.*;
 import org.apache.commons.text.WordUtils;
@@ -15,9 +18,12 @@ public class City extends BaseModel {
     @Column(name = "name")
     private String name;
 
+    @JsonSerialize(using = PointSerializer.class)
+    @JsonDeserialize(using = PointDeserializer.class)
     @Column(name = "location")
     private Point location;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "state_region_id")
     private StateRegion stateRegion;
@@ -34,6 +40,7 @@ public class City extends BaseModel {
         return name;
     }
 
+    @JsonIgnore
     public String getStandardizedName() {
         if (name.equals(name.toUpperCase())) {
             return WordUtils.capitalizeFully(name);
