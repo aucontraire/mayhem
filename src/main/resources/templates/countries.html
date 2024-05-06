@@ -6,11 +6,11 @@
     </head>
     <body>
         <h1>Countries</h1>
-        <ul>
+        <ol>
             <!--<li th:each="country : ${countries}" th:text="${country.name}">-->
             <li th:each="country : ${countries}">
                 <a th:href="@{/countries/{id}(id=${country.id})}" th:text="${country.name}"></a>
             </li>
-        </ul>
+        </ol>
     </body>
 </html>

@@ -5,14 +5,60 @@
         <title>State-Regions</title>
         <script src='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
         <link href='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css' rel='stylesheet' />
+        <style>
+            /* Specify the dimensions of your map */
+            #map {
+                width: 100%;
+                height: 600px;
+            }
+        </style>
     </head>
     <body>
+        <div id='map'></div>
         <h1 th:text="${country.name}"></h1>
         <h2>List of State Regions</h2>
-        <ul>
+        <ol>
             <li th:each="stateRegion : ${country.stateRegions}">
                 <a th:href="@{/stateregions/{id}(id=${stateRegion.id})}" th:text="${stateRegion.name}"></a>
             </li>
-        </ul>
+        </ol>
+        <script data-th-inline="javascript">
+            /*<![CDATA[*/
+            var cityList = /*[[${cities}]]*/ null;
+            var mapboxAccessToken = /*[[${mapboxAccessToken}]]*/ 'YOUR_API_TOKEN';
+            /*]]>*/
+
+            // Initialize Mapbox map
+            mapboxgl.accessToken = mapboxAccessToken;
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [-96, 37.8],
+                zoom: 3
+            });
+
+            map.on('load', function() {
+                // Add markers for each city
+                var cities = [];
+                cityList.forEach(function(city) {
+                    var cityName = city.name;
+                    if (city.location !== null && city.location !== undefined) {
+                        var cityCoordinates = [city.location.x, city.location.y];
+                        cities.push({ name: cityName, coordinates: cityCoordinates });
+                    } else {
+                        console.log("City " + city.name + " does not have coordinates.");
+                    }
+
+                });
+
+                cities.forEach(function(city) {
+                    // Create a marker for each city
+                    new mapboxgl.Marker()
+                        .setLngLat(city.coordinates)
+                        .setPopup(new mapboxgl.Popup().setText(city.name))
+                        .addTo(map);
+                });
+            });
+        </script>
     </body>
 </html>
