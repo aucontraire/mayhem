@@ -35,9 +35,8 @@ public class CountryController {
         if (countryOptional.isPresent()) {
             Country country = countryOptional.get();
             model.addAttribute("country", country);
-            return "stateregions";
         }
-        return "";
+        return "stateregions";
     }
 
 }

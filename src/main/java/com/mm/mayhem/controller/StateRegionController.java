@@ -25,14 +25,12 @@ public class StateRegionController {
     @GetMapping("/stateregions/{id}")
     public String getCitiesByStateRegion(@PathVariable Long id, Model model) {
         String mapboxAccessToken = env.getProperty("mayhem.mapbox.api.token");
-        System.out.println(mapboxAccessToken);
         model.addAttribute("mapboxAccessToken", mapboxAccessToken);
         Optional<StateRegion> stateRegionOptional = stateRegionService.getStateRegionById(id);
         if (stateRegionOptional.isPresent()) {
             StateRegion stateRegion = stateRegionOptional.get();
             model.addAttribute("stateRegion", stateRegion);
-            return "cities";
         }
-        return "";
+        return "cities";
     }
 }
