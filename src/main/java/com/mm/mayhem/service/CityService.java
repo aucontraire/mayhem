@@ -5,11 +5,8 @@ import com.mm.mayhem.model.db.geo.StateRegion;
 import com.mm.mayhem.repository.CityRepository;
 
 import com.mm.mayhem.utils.GeographyUtil;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
-import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,30 +55,25 @@ public class CityService {
     }
 
     public Double calculateDistanceBetweenCities(City city1, City city2) {
-        Point point1 = city1.getLocation();
-        Point point2 = city2.getLocation();
-        /*
+        // Calculate distance in miles using the Haversine formula
         Point location1 = city1.getLocation();
         Point location2 = city2.getLocation();
 
-        double latitude1 = location1.getY();
-        double longitude1 = location1.getX();
+        double lat1 = Math.toRadians(location1.getY());
+        double lon1 = Math.toRadians(location1.getX());
+        double lat2 = Math.toRadians(location2.getY());
+        double lon2 = Math.toRadians(location2.getX());
 
-        double latitude2 = location2.getY();
-        double longitude2 = location2.getX();
+        double dlon = lon2 - lon1;
+        double dlat = lat2 - lat1;
 
-        // Create Coordinate objects for the two points
-        Coordinate coord1 = new Coordinate(longitude1, latitude1);
-        Coordinate coord2 = new Coordinate(longitude2, latitude2);
+        double a = Math.pow(Math.sin(dlat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
 
-        // Create Point objects using the Coordinate objects
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326); // 4326 is the SRID for WGS84
-        Point point1 = geometryFactory.createPoint(coord1);
-        Point point2 = geometryFactory.createPoint(coord2);
-        */
+        // Radius of the Earth in meters
+        double radius = 6371000; // Approximate value for Earth's radius in meters
 
-        // Calculate the distance between the two points
-        return point1.distance(point2);
+        return (radius * c) / 1609.34; // Convert to miles
     }
 
 
