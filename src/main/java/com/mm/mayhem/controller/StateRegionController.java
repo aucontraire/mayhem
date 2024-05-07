@@ -1,5 +1,8 @@
 package com.mm.mayhem.controller;
 
+import com.mm.mayhem.api.geonames.Geoname;
+import com.mm.mayhem.api.geonames.GeonamesClientJson;
+import com.mm.mayhem.model.db.geo.Country;
 import com.mm.mayhem.model.db.geo.StateRegion;
 import com.mm.mayhem.service.StateRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +17,13 @@ import java.util.Optional;
 @Controller
 public class StateRegionController {
     private final StateRegionService stateRegionService;
+    private final GeonamesClientJson geonamesClientJson;
     private final Environment env;
 
     @Autowired
-    public StateRegionController(StateRegionService stateRegionService, Environment env) {
+    public StateRegionController(StateRegionService stateRegionService, GeonamesClientJson geonamesClientJson, Environment env) {
         this.stateRegionService = stateRegionService;
+        this.geonamesClientJson = geonamesClientJson;
         this.env = env;
     }
 
@@ -29,6 +34,14 @@ public class StateRegionController {
         Optional<StateRegion> stateRegionOptional = stateRegionService.getStateRegionById(id);
         if (stateRegionOptional.isPresent()) {
             StateRegion stateRegion = stateRegionOptional.get();
+
+            Country country = stateRegion.getCountry();
+            Geoname countryGeoname = geonamesClientJson.getCountry(country);
+            Double longitude =  countryGeoname.getLng();
+            Double latitude = countryGeoname.getLat();
+            model.addAttribute("longitude", longitude);
+            model.addAttribute("latitude", latitude);
+
             model.addAttribute("stateRegion", stateRegion);
         }
         return "cities";
