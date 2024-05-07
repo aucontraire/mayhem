@@ -26,6 +26,8 @@
             /*<![CDATA[*/
             var cityList = /*[[${cities}]]*/ null;
             var mapboxAccessToken = /*[[${mapboxAccessToken}]]*/ 'YOUR_API_TOKEN';
+            var longitude = /*[[${longitude}]]*/ -96;
+            var latitude = /*[[${latitude}]]*/ 37.8;
             /*]]>*/
 
             // Initialize Mapbox map
@@ -33,7 +35,7 @@
             var map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/streets-v11',
-                center: [-96, 37.8],
+                center: [longitude, latitude],
                 zoom: 3
             });
 

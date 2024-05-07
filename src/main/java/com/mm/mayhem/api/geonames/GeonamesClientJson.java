@@ -39,6 +39,32 @@ public class GeonamesClientJson {
         featureCodes.add("PPLC");
     }
 
+    public Geoname getCountry(Country country) {
+        String countryName = country.getName();
+        String countryCode = country.getCountryCode();
+
+        String apiUrl = GEONAMES_BASE_URL + "{countryName}&name_equals={nameEquals}&country={countryCode}&username={username}";
+        Map<String, String> uriVariables = new HashMap<>();
+        uriVariables.put("countryName", countryName);
+        uriVariables.put("nameEquals", countryName);
+        uriVariables.put("featureClass", "P");
+        uriVariables.put("countryCode", countryCode);
+        uriVariables.put("username", env.getProperty("mayhem.geonames.username"));
+
+        GeonamesResponse response = restTemplate.getForObject(apiUrl, GeonamesResponse.class, uriVariables);
+
+        List<Geoname> geonameMatches = new ArrayList<>();
+        List<Geoname> geonameList = response.getGeonames();
+
+        System.out.println("getCountry match count: " + geonameList.size());
+
+        geonameList.forEach(geoname -> {
+            geonameMatches.add(geoname);
+
+        });
+        return geonameMatches.get(0);
+    }
+
     public List<Geoname> getCity(City city) {
 
         String cityName = city.getStandardizedName();
@@ -62,7 +88,7 @@ public class GeonamesClientJson {
         List<Geoname> geonameMatches = new ArrayList<>();
         List<Geoname> geonameList = response.getGeonames();
 
-        System.out.println("getCity Match Count: " + geonameList.size());
+        System.out.println("getCity match count: " + geonameList.size());
 
         geonameList.forEach(geoname -> {
             String adminName1 = geoname.getAdminName1();
@@ -102,34 +128,7 @@ public class GeonamesClientJson {
             System.out.println("No matching geonames found for city: " + city.getName());
         }
 
-        /*
-        List<Geoname> geonameCandidateCityList = getCity(city);
-        int highestPopulation = 0;
-        Geoname cityHighestPopulation = null;
-        geonameCandidateCityList.forEach(geoname -> {
-            String cityName = city.getName();
-            int geonameId = geoname.getGeonameId();
-            double latitude = geoname.getLat();
-            double longitude = geoname.getLng();
-            String adminName1 = geoname.getAdminName1();
-            String fcl = geoname.getFcl();
-            String fCode = geoname.getFcode();
-            String fcodeName = geoname.getFcodeName();
-            int population =  geoname.getPopulation();
-            String adminCode1 = geoname.getAdminCode1();
 
-            if (geonameCandidateCityList.size() == 1) {
-                cityService.saveCityWithLocation(city, latitude, longitude);
-                System.out.println("Found a match: " + cityName + " " + geonameId + " " + adminName1 + " " + latitude + " " + longitude + " " + population + " featureClass:" + fcl + " fCode:" + fCode + " fcodeName:" + fcodeName);
-            } else {
-                if (population > highestPopulation) {
-                    cityHighestPopulation = geoname;
-                }
-                System.out.println("Other matches: " + cityName + " " + geonameId + " " + adminName1 + " " + latitude + " " + longitude + " " + population + " featureClass:" + fcl + " fCode:" + fCode + " fcodeName:" + fcodeName);
-            }
-        });
-        cityService.saveCityWithLocation(city, cityHighestPopulation.getLat(), cityHighestPopulation.getLng());
-        */
 
     }
 

@@ -1,5 +1,7 @@
 package com.mm.mayhem.controller;
 
+import com.mm.mayhem.api.geonames.Geoname;
+import com.mm.mayhem.api.geonames.GeonamesClientJson;
 import com.mm.mayhem.model.db.geo.City;
 import com.mm.mayhem.model.db.geo.Country;
 import com.mm.mayhem.model.db.geo.StateRegion;
@@ -21,10 +23,13 @@ public class CountryController {
     private final CountryService countryService;
     private final Environment env;
 
+    private final GeonamesClientJson geonamesClientJson;
+
     @Autowired
-    public CountryController(CountryService countryService, Environment env) {
+    public CountryController(CountryService countryService, Environment env, GeonamesClientJson geonamesClientJson) {
         this.countryService = countryService;
         this.env = env;
+        this.geonamesClientJson = geonamesClientJson;
     }
 
     @GetMapping("/countries")
@@ -38,9 +43,18 @@ public class CountryController {
     public String getStateRegionsByCountry(@PathVariable Long id, Model model) {
         String mapboxAccessToken = env.getProperty("mayhem.mapbox.api.token");
         model.addAttribute("mapboxAccessToken", mapboxAccessToken);
+
         Optional<Country> countryOptional = countryService.getCountryById(id);
+
         if (countryOptional.isPresent()) {
             Country country = countryOptional.get();
+
+            Geoname countryGeoname = geonamesClientJson.getCountry(country);
+            Double longitude =  countryGeoname.getLng();
+            Double latitude = countryGeoname.getLat();
+            model.addAttribute("longitude", longitude);
+            model.addAttribute("latitude", latitude);
+
             List<City> cities = country.getStateRegions().stream().flatMap(sr -> sr.getCities().stream()).collect(Collectors.toList());
             model.addAttribute("cities", cities);
             model.addAttribute("country", country);
