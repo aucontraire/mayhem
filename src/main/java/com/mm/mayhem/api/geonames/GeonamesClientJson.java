@@ -35,6 +35,8 @@ public class GeonamesClientJson {
         featureCodes.add("PPL");
         featureCodes.add("PPLA");
         featureCodes.add("PPLA2");
+        featureCodes.add("PPLA3");
+        featureCodes.add("PPLA4");
         featureCodes.add("PPLX");
         featureCodes.add("PPLC");
     }
