@@ -59,7 +59,6 @@ public class GeonamesClientJson {
         List<Geoname> geonameMatches = new ArrayList<>();
         List<Geoname> geonameList = response.getGeonames();
 
-        System.out.println("getCountry match count: " + geonameList.size());
         logger.info("Country match count: " + geonameList.size());
 
         geonameList.forEach(geoname -> {
@@ -97,7 +96,6 @@ public class GeonamesClientJson {
         List<Geoname> geonameMatches = new ArrayList<>();
         List<Geoname> geonameList = response.getGeonames();
 
-        System.out.println("getCity match count: " + geonameList.size());
         logger.info("City match count: " + geonameList.size());
 
         geonameList.forEach(geoname -> {
@@ -112,7 +110,6 @@ public class GeonamesClientJson {
 
     public void addLocationToCity(City city) {
         List<Geoname> geonameCandidateCityList = getCity(city);
-        System.out.println("addLocationToCity Match Count: " + geonameCandidateCityList.size());
         logger.info("City location match count: " + geonameCandidateCityList.size());
 
         int highestPopulation = 0;
@@ -134,15 +131,10 @@ public class GeonamesClientJson {
             double latitude = cityHighestPopulation.getLat();
             double longitude = cityHighestPopulation.getLng();
             cityService.saveCityWithLocation(city, latitude, longitude);
-            System.out.println("Found a match: " + city.getName() + " Population: " + highestPopulation + " Latitude: " + latitude + " Longitude: " + longitude);
             logger.info("Found a match: " + city.getName() + " Population: " + highestPopulation + " Latitude: " + latitude + " Longitude: " + longitude);
         } else {
-            System.out.println("No matching geonames found for city: " + city.getName());
             logger.info("No matching geonames found for city: " + city.getName());
         }
-
-
-
     }
 
 }
