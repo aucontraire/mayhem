@@ -29,8 +29,10 @@ public class CountryService {
     public Optional<Country> getCountryByName(String name) { return countryRepository.findCountryByName(name); }
 
     public Country saveCountry(Country country) {
-        String countryCode = geonamesClientJson.getCountryCode(country);
-        country.setCountryCode(countryCode);
+        if (country.getCountryCode() == null) {
+            String countryCode = geonamesClientJson.getCountryCode(country);
+            country.setCountryCode(countryCode);
+        }
         return countryRepository.save(country);
     }
 }
