@@ -2,10 +2,7 @@ package com.mm.mayhem.api.geonames;
 
 import com.mm.mayhem.model.db.geo.City;
 import com.mm.mayhem.model.db.geo.Country;
-import com.mm.mayhem.model.db.geo.StateRegion;
 import com.mm.mayhem.service.CityService;
-import com.mm.mayhem.service.CountryService;
-import com.mm.mayhem.service.StateRegionService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,59 +10,47 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class GeonamesClientJson {
     private static final String GEONAMES_BASE_URL = "http://api.geonames.org/searchJSON?q=";
     private final Environment env;
     private final CityService cityService;
-    private final StateRegionService stateRegionService;
     private final RestTemplate restTemplate;
-    private List<String> featureCodes = new ArrayList<>();
+    private final List<String> featureCodes = Arrays.asList("PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLX", "PPLC");
     private static final Logger logger = LoggerFactory.getLogger(GeonamesClientJson.class);
 
-    public GeonamesClientJson(RestTemplate restTemplate, CityService cityService, StateRegionService stateRegionService, Environment env) {
+    public GeonamesClientJson(RestTemplate restTemplate, CityService cityService, Environment env) {
         this.restTemplate = restTemplate;
         this.cityService = cityService;
-        this.stateRegionService = stateRegionService;
         this.env = env;
-        featureCodes.add("PPL");
-        featureCodes.add("PPLA");
-        featureCodes.add("PPLA2");
-        featureCodes.add("PPLA3");
-        featureCodes.add("PPLA4");
-        featureCodes.add("PPLX");
-        featureCodes.add("PPLC");
+    }
+
+    public String buildApiUrl(String query, String featureClass, String countryCode) {
+        return String.format("%s%s&name_equals=%s&featureClass=%s&country=%s&username=%s",
+                GEONAMES_BASE_URL, query, query, featureClass, countryCode, env.getProperty("mayhem.geonames.username"));
+    }
+
+    private List<Geoname> filterGeonames(List<Geoname> geonameList, String stateRegionName) {
+        List<Geoname> filteredGeonames = new ArrayList<>();
+        for (Geoname geoname : geonameList) {
+            String adminName1 = geoname.getAdminName1();
+            String fCode = geoname.getFcode();
+            if (adminName1.contains(stateRegionName) && featureCodes.contains(fCode)) {
+                filteredGeonames.add(geoname);
+            }
+        }
+        logger.info("Geonames match count: " + filteredGeonames.size());
+        return filteredGeonames;
     }
 
     public Geoname getCountry(Country country) {
-        String countryName = country.getName();
-        String countryCode = country.getCountryCode();
-
-        String apiUrl = GEONAMES_BASE_URL + "{countryName}&name_equals={nameEquals}&country={countryCode}&username={username}";
-        Map<String, String> uriVariables = new HashMap<>();
-        uriVariables.put("countryName", countryName);
-        uriVariables.put("nameEquals", countryName);
-        uriVariables.put("featureClass", "P");
-        uriVariables.put("countryCode", countryCode);
-        uriVariables.put("username", env.getProperty("mayhem.geonames.username"));
-
-        GeonamesResponse response = restTemplate.getForObject(apiUrl, GeonamesResponse.class, uriVariables);
-
-        List<Geoname> geonameMatches = new ArrayList<>();
+        String apiUrl = buildApiUrl(country.getName(), "A", country.getCountryCode());
+        GeonamesResponse response = restTemplate.getForObject(apiUrl, GeonamesResponse.class);
         List<Geoname> geonameList = response.getGeonames();
-
         logger.info("Country match count: " + geonameList.size());
-
-        geonameList.forEach(geoname -> {
-            geonameMatches.add(geoname);
-
-        });
-        return geonameMatches.get(0);
+        return geonameList.isEmpty() ? null : geonameList.get(0);
     }
 
     public String getCountryCode(Country country) {
@@ -74,38 +59,10 @@ public class GeonamesClientJson {
     }
 
     public List<Geoname> getCity(City city) {
-
-        String cityName = city.getStandardizedName();
-
-        StateRegion stateRegion = city.getStateRegion();
-        String stateRegionName = stateRegion.getName();
-        Country country = stateRegion.getCountry();
-        String countryName = country.getName();
-        String countryCode = country.getCountryCode();
-
-        String apiUrl = GEONAMES_BASE_URL + "{city}&name_equals={nameEquals}&featureClass={featureClass}&country={country}&username={username}";
-        Map<String, String> uriVariables = new HashMap<>();
-        uriVariables.put("city", cityName);
-        uriVariables.put("nameEquals", cityName);
-        uriVariables.put("featureClass", "P");
-        uriVariables.put("country", countryCode);
-        uriVariables.put("username", env.getProperty("mayhem.geonames.username"));
-
-        GeonamesResponse response = restTemplate.getForObject(apiUrl, GeonamesResponse.class, uriVariables);
-
-        List<Geoname> geonameMatches = new ArrayList<>();
+        String apiUrl = buildApiUrl(city.getStandardizedName(), "P", city.getStateRegion().getCountry().getCountryCode());
+        GeonamesResponse response = restTemplate.getForObject(apiUrl, GeonamesResponse.class);
         List<Geoname> geonameList = response.getGeonames();
-
-        logger.info("City match count: " + geonameList.size());
-
-        geonameList.forEach(geoname -> {
-            String adminName1 = geoname.getAdminName1();
-            String fCode = geoname.getFcode();
-            if (adminName1.contains(stateRegionName) && featureCodes.contains(fCode)) {
-                geonameMatches.add(geoname);
-            }
-        });
-        return geonameMatches;
+        return filterGeonames(geonameList, city.getStateRegion().getName());
     }
 
     public void addLocationToCity(City city) {
@@ -120,7 +77,7 @@ public class GeonamesClientJson {
             String fCode = geoname.getFcode();
             int geonameId = geoname.getGeonameId();
 
-            System.out.println(geonameId + " " + adminName1 + " " + fCode +  " population: " + population);
+            logger.info(geonameId + " " + adminName1 + " " + fCode +  " population: " + population);
             if (population >= highestPopulation) {
                 highestPopulation = population;
                 cityHighestPopulation = geoname;
@@ -136,5 +93,4 @@ public class GeonamesClientJson {
             logger.info("No matching geonames found for city: " + city.getName());
         }
     }
-
 }
