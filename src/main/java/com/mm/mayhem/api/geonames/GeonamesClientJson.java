@@ -67,6 +67,11 @@ public class GeonamesClientJson {
         return geonameMatches.get(0);
     }
 
+    public String getCountryCode(Country country) {
+        Geoname countryGeoname = getCountry(country);
+        return countryGeoname.getCountryCode();
+    }
+
     public List<Geoname> getCity(City city) {
 
         String cityName = city.getStandardizedName();
