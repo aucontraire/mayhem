@@ -7,6 +7,8 @@ import com.mm.mayhem.service.CityService;
 import com.mm.mayhem.service.CountryService;
 import com.mm.mayhem.service.StateRegionService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -22,15 +24,14 @@ public class GeonamesClientJson {
     private final Environment env;
     private final CityService cityService;
     private final StateRegionService stateRegionService;
-    private final CountryService countryService;
     private final RestTemplate restTemplate;
     private List<String> featureCodes = new ArrayList<>();
+    private static final Logger logger = LoggerFactory.getLogger(GeonamesClientJson.class);
 
-    public GeonamesClientJson(RestTemplate restTemplate, CityService cityService, StateRegionService stateRegionService, CountryService countryService, Environment env) {
+    public GeonamesClientJson(RestTemplate restTemplate, CityService cityService, StateRegionService stateRegionService, Environment env) {
         this.restTemplate = restTemplate;
         this.cityService = cityService;
         this.stateRegionService = stateRegionService;
-        this.countryService = countryService;
         this.env = env;
         featureCodes.add("PPL");
         featureCodes.add("PPLA");
@@ -59,6 +60,7 @@ public class GeonamesClientJson {
         List<Geoname> geonameList = response.getGeonames();
 
         System.out.println("getCountry match count: " + geonameList.size());
+        logger.info("Country match count: " + geonameList.size());
 
         geonameList.forEach(geoname -> {
             geonameMatches.add(geoname);
@@ -96,6 +98,7 @@ public class GeonamesClientJson {
         List<Geoname> geonameList = response.getGeonames();
 
         System.out.println("getCity match count: " + geonameList.size());
+        logger.info("City match count: " + geonameList.size());
 
         geonameList.forEach(geoname -> {
             String adminName1 = geoname.getAdminName1();
@@ -110,6 +113,7 @@ public class GeonamesClientJson {
     public void addLocationToCity(City city) {
         List<Geoname> geonameCandidateCityList = getCity(city);
         System.out.println("addLocationToCity Match Count: " + geonameCandidateCityList.size());
+        logger.info("City location match count: " + geonameCandidateCityList.size());
 
         int highestPopulation = 0;
         Geoname cityHighestPopulation = null;
@@ -131,8 +135,10 @@ public class GeonamesClientJson {
             double longitude = cityHighestPopulation.getLng();
             cityService.saveCityWithLocation(city, latitude, longitude);
             System.out.println("Found a match: " + city.getName() + " Population: " + highestPopulation + " Latitude: " + latitude + " Longitude: " + longitude);
+            logger.info("Found a match: " + city.getName() + " Population: " + highestPopulation + " Latitude: " + latitude + " Longitude: " + longitude);
         } else {
             System.out.println("No matching geonames found for city: " + city.getName());
+            logger.info("No matching geonames found for city: " + city.getName());
         }
 
 
