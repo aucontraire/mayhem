@@ -2,6 +2,8 @@ package com.mm.mayhem.api.geonames;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Map;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Geoname {
 
@@ -15,7 +17,7 @@ public class Geoname {
     private String countryCode;
     private String name;
     private String fclName;
-    // private String adminCodes1; "adminCodes1": { "ISO3166_2": "CA" }
+    private Map<String, String> adminCodes1;
     private String countryName;
     private String fcodeName;
     private String adminName1;
@@ -102,6 +104,14 @@ public class Geoname {
 
     public void setFclName(String fclName) {
         this.fclName = fclName;
+    }
+
+    public Map<String, String> getAdminCodes1() {
+        return adminCodes1;
+    }
+
+    public void setAdminCodes1(Map<String, String> adminCodes1) {
+        this.adminCodes1 = adminCodes1;
     }
 
     public String getCountryName() {
