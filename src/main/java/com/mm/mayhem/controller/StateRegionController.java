@@ -1,7 +1,7 @@
 package com.mm.mayhem.controller;
 
-import com.mm.mayhem.api.geonames.Geoname;
 import com.mm.mayhem.api.geonames.GeonamesClientJson;
+import com.mm.mayhem.model.db.geo.Coordinates;
 import com.mm.mayhem.model.db.geo.Country;
 import com.mm.mayhem.model.db.geo.StateRegion;
 import com.mm.mayhem.service.StateRegionService;
@@ -36,11 +36,12 @@ public class StateRegionController {
             StateRegion stateRegion = stateRegionOptional.get();
 
             Country country = stateRegion.getCountry();
-            Geoname countryGeoname = geonamesClientJson.getCountry(country);
-            Double longitude =  countryGeoname.getLng();
-            Double latitude = countryGeoname.getLat();
-            model.addAttribute("longitude", longitude);
-            model.addAttribute("latitude", latitude);
+            Optional<Coordinates> coordinatesOptional = geonamesClientJson.getCountryCoordinates(country);
+            if (coordinatesOptional.isPresent()) {
+                Coordinates coordinates = coordinatesOptional.get();
+                model.addAttribute("longitude", coordinates.getLongitude());
+                model.addAttribute("latitude", coordinates.getLatitude());
+            }
 
             model.addAttribute("stateRegion", stateRegion);
         }

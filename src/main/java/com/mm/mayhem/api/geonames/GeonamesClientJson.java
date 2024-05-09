@@ -3,13 +3,16 @@ package com.mm.mayhem.api.geonames;
 import com.mm.mayhem.model.db.geo.City;
 import com.mm.mayhem.model.db.geo.Coordinates;
 import com.mm.mayhem.model.db.geo.Country;
-import com.mm.mayhem.service.CityService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -46,33 +49,84 @@ public class GeonamesClientJson {
         return filteredGeonames;
     }
 
-    public Geoname getCountry(Country country) {
-        String apiUrl = buildApiUrl(country.getName(), "A", country.getCountryCode());
-        GeonamesResponse response = restTemplate.getForObject(apiUrl, GeonamesResponse.class);
-        List<Geoname> geonameList = response.getGeonames();
-        logger.info("Country match count: " + geonameList.size());
-        return geonameList.isEmpty() ? null : geonameList.get(0);
+    public GeonamesResponse getCountry(Country country) {
+        try {
+            String apiUrl = buildApiUrl(country.getName(), "A", country.getCountryCode());
+            ResponseEntity<GeonamesResponse> responseEntity = restTemplate.exchange(
+                    apiUrl, HttpMethod.GET, null, GeonamesResponse.class);
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                return responseEntity.getBody();
+            } else {
+                logger.error("Error fetching " + country.getName() + " country data: " + responseEntity.getStatusCode());
+                return null;
+            }
+        } catch (HttpClientErrorException ex) {
+            logger.error("HTTP fetching " + country.getName() + " country data: " + ex.getMessage());
+            return null;
+        } catch (RestClientException ex) {
+            logger.error("RestClient fetching " + country.getName() + " country data: " + ex.getMessage());
+            return null;
+        }
     }
 
-    public String getCountryCode(Country country) {
-        Geoname countryGeoname = getCountry(country);
-        return countryGeoname.getCountryCode();
+    public Optional<String> getCountryCode(Country country) {
+        GeonamesResponse geonamesResponse = getCountry(country);
+        List<Geoname> countryGeonameList = geonamesResponse.getGeonames();
+        if (countryGeonameList.isEmpty()) {
+            return Optional.empty();
+        }
+        Geoname countryGeoname = countryGeonameList.get(0);
+        return Optional.of(countryGeoname.getCountryCode());
     }
 
-    public List<Geoname> getCity(City city) {
-        String apiUrl = buildApiUrl(city.getStandardizedName(), "P", city.getStateRegion().getCountry().getCountryCode());
-        GeonamesResponse response = restTemplate.getForObject(apiUrl, GeonamesResponse.class);
-        List<Geoname> geonameList = response.getGeonames();
-        return filterGeonames(geonameList, city.getStateRegion().getName());
+    public Coordinates getGeonamesCoordinates(Geoname geoname) {
+        Coordinates coordinates = new Coordinates();
+        Double longitude = geoname.getLng();
+        Double latitude = geoname.getLat();
+        coordinates.setLongitude(longitude);
+        coordinates.setLatitude(latitude);
+        return coordinates;
     }
 
-    public Coordinates getCityCoordinates(City city) {
-        List<Geoname> geonameCandidateCityList = getCity(city);
-        logger.info("City location match count: " + geonameCandidateCityList.size());
+    public Optional<Coordinates> getCountryCoordinates(Country country) {
+        GeonamesResponse geonamesResponse = getCountry(country);
+        List<Geoname> countryGeonameList = geonamesResponse.getGeonames();
+        if (!countryGeonameList.isEmpty()) {
+            Geoname countryGeoname = countryGeonameList.get(0);
+            return Optional.of(getGeonamesCoordinates(countryGeoname));
+        }
+        return Optional.empty();
+    }
+
+    public GeonamesResponse getCity(City city) {
+        try {
+            String apiUrl = buildApiUrl(city.getStandardizedName(), "P", city.getStateRegion().getCountry().getCountryCode());
+            ResponseEntity<GeonamesResponse> responseEntity = restTemplate.exchange(apiUrl, HttpMethod.GET, null, GeonamesResponse.class);
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                return responseEntity.getBody();
+            } else {
+                logger.error("Error fetching " + city.getName() + " city data: " + responseEntity.getStatusCode());
+                return null;
+            }
+        } catch (HttpClientErrorException ex) {
+            logger.error("HTTP Error fetching " + city.getName() + " city data: " + ex.getMessage());
+            return null;
+        } catch (RestClientException ex) {
+            logger.error("RestClient Error fetching " + city.getName() + " city data: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    public Optional<Coordinates> getCityCoordinates(City city) {
+        GeonamesResponse geonamesResponse = getCity(city);
+        List<Geoname> cityGeonameList = filterGeonames(geonamesResponse.getGeonames(), city.getStateRegion().getName());
+        if (cityGeonameList.isEmpty()) {
+            return Optional.empty();
+        }
 
         int highestPopulation = 0;
         Geoname cityHighestPopulation = null;
-        for (Geoname geoname : geonameCandidateCityList) {
+        for (Geoname geoname : cityGeonameList) {
             int population = geoname.getPopulation();
             String adminName1 = geoname.getAdminName1();
             String fCode = geoname.getFcode();
@@ -86,11 +140,8 @@ public class GeonamesClientJson {
         }
 
         if (cityHighestPopulation != null) {
-            Coordinates coordinates = new Coordinates();
-            coordinates.setLatitude(cityHighestPopulation.getLat());
-            coordinates.setLongitude(cityHighestPopulation.getLng());
-            return coordinates;
+            return Optional.of(getGeonamesCoordinates(cityHighestPopulation));
         }
-        return null;
+        return Optional.empty();
     }
 }

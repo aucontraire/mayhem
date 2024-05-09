@@ -30,8 +30,10 @@ public class CountryService {
 
     public Country saveCountry(Country country) {
         if (country.getCountryCode() == null) {
-            String countryCode = geonamesClientJson.getCountryCode(country);
-            country.setCountryCode(countryCode);
+            Optional<String> countryCodeOptional = geonamesClientJson.getCountryCode(country);
+            if (countryCodeOptional.isPresent()) {
+                country.setCountryCode(countryCodeOptional.get());
+            }
         }
         return countryRepository.save(country);
     }

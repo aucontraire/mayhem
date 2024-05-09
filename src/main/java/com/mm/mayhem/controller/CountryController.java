@@ -1,12 +1,10 @@
 package com.mm.mayhem.controller;
 
-import com.mm.mayhem.api.geonames.Geoname;
 import com.mm.mayhem.api.geonames.GeonamesClientJson;
 import com.mm.mayhem.model.db.geo.City;
+import com.mm.mayhem.model.db.geo.Coordinates;
 import com.mm.mayhem.model.db.geo.Country;
-import com.mm.mayhem.model.db.geo.StateRegion;
 import com.mm.mayhem.service.CountryService;
-import com.mm.mayhem.service.StateRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
@@ -45,15 +43,14 @@ public class CountryController {
         model.addAttribute("mapboxAccessToken", mapboxAccessToken);
 
         Optional<Country> countryOptional = countryService.getCountryById(id);
-
         if (countryOptional.isPresent()) {
             Country country = countryOptional.get();
-
-            Geoname countryGeoname = geonamesClientJson.getCountry(country);
-            Double longitude =  countryGeoname.getLng();
-            Double latitude = countryGeoname.getLat();
-            model.addAttribute("longitude", longitude);
-            model.addAttribute("latitude", latitude);
+            Optional<Coordinates> coordinatesOptional = geonamesClientJson.getCountryCoordinates(country);
+            if (coordinatesOptional.isPresent()) {
+                Coordinates coordinates = coordinatesOptional.get();
+                model.addAttribute("longitude", coordinates.getLongitude());
+                model.addAttribute("latitude", coordinates.getLatitude());
+            }
 
             List<City> cities = country.getStateRegions().stream().flatMap(sr -> sr.getCities().stream()).collect(Collectors.toList());
             model.addAttribute("cities", cities);
@@ -61,5 +58,4 @@ public class CountryController {
         }
         return "stateregions";
     }
-
 }
