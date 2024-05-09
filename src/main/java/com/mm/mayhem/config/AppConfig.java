@@ -20,7 +20,7 @@ public class AppConfig {
     public RestTemplate restTemplate() { return new RestTemplate(); }
 
     @Bean
-    public GeonamesClientJson geonamesClientJson(RestTemplate restTemplate, CityService cityService, Environment env) {
-        return new GeonamesClientJson(restTemplate, cityService, env);
+    public GeonamesClientJson geonamesClientJson(RestTemplate restTemplate, Environment env) {
+        return new GeonamesClientJson(restTemplate, env);
     }
 }

@@ -1,11 +1,13 @@
 package com.mm.mayhem.api.geonames;
 
 import com.mm.mayhem.model.db.geo.City;
+import com.mm.mayhem.model.db.geo.Coordinates;
 import com.mm.mayhem.model.db.geo.Country;
 import com.mm.mayhem.service.CityService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -16,14 +18,13 @@ import java.util.*;
 public class GeonamesClientJson {
     private static final String GEONAMES_BASE_URL = "http://api.geonames.org/searchJSON?q=";
     private final Environment env;
-    private final CityService cityService;
     private final RestTemplate restTemplate;
     private final List<String> featureCodes = Arrays.asList("PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLX", "PPLC");
     private static final Logger logger = LoggerFactory.getLogger(GeonamesClientJson.class);
 
-    public GeonamesClientJson(RestTemplate restTemplate, CityService cityService, Environment env) {
+    @Autowired
+    public GeonamesClientJson(RestTemplate restTemplate, Environment env) {
         this.restTemplate = restTemplate;
-        this.cityService = cityService;
         this.env = env;
     }
 
@@ -65,7 +66,7 @@ public class GeonamesClientJson {
         return filterGeonames(geonameList, city.getStateRegion().getName());
     }
 
-    public void addLocationToCity(City city) {
+    public Coordinates getCityCoordinates(City city) {
         List<Geoname> geonameCandidateCityList = getCity(city);
         logger.info("City location match count: " + geonameCandidateCityList.size());
 
@@ -85,12 +86,11 @@ public class GeonamesClientJson {
         }
 
         if (cityHighestPopulation != null) {
-            double latitude = cityHighestPopulation.getLat();
-            double longitude = cityHighestPopulation.getLng();
-            cityService.saveCityWithLocation(city, latitude, longitude);
-            logger.info("Found a match: " + city.getName() + " Population: " + highestPopulation + " Latitude: " + latitude + " Longitude: " + longitude);
-        } else {
-            logger.info("No matching geonames found for city: " + city.getName());
+            Coordinates coordinates = new Coordinates();
+            coordinates.setLatitude(cityHighestPopulation.getLat());
+            coordinates.setLongitude(cityHighestPopulation.getLng());
+            return coordinates;
         }
+        return null;
     }
 }
