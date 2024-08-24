@@ -52,4 +52,14 @@ public class StateRegion extends BaseModel {
     public List<City> getCities() { return cities; }
 
     public void setCities(List<City> cities) { this.cities = cities; }
+
+    @Override
+    public String toString() {
+        return "StateRegion{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", country=" + (country != null ? country.getName() : "null") +
+                '}';
+    }
+
 }

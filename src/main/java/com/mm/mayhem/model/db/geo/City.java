@@ -65,4 +65,15 @@ public class City extends BaseModel {
     public void setStateRegion(StateRegion stateRegion) {
         this.stateRegion = stateRegion;
     }
+
+    @Override
+    public String toString() {
+        return "City{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", stateRegion=" + (stateRegion != null ? stateRegion.getName() : "null") +
+                ", country=" + (stateRegion != null && stateRegion.getCountry() != null ? stateRegion.getCountry().getName() : "null") +
+                '}';
+    }
+
 }

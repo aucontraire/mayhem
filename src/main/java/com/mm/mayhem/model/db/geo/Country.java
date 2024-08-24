@@ -52,4 +52,13 @@ public class Country extends BaseModel {
     public void setStateRegions(List<StateRegion> stateRegions) {
         this.stateRegions = stateRegions;
     }
+
+    @Override
+    public String toString() {
+        return "Country{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
+
 }
