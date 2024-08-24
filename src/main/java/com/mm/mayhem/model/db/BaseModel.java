@@ -1,26 +1,26 @@
 package com.mm.mayhem.model.db;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public abstract class BaseModel {
 
-    protected LocalDateTime created;
+    protected ZonedDateTime created;
 
-    protected LocalDateTime updated;
+    protected ZonedDateTime updated;
 
-    public LocalDateTime getCreated() {
+    public ZonedDateTime getCreated() {
         return created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    public void setCreated(ZonedDateTime created) {
         this.created = created;
     }
 
-    public LocalDateTime getUpdated() {
+    public ZonedDateTime getUpdated() {
         return updated;
     }
 
-    public void setUpdated(LocalDateTime updated) {
+    public void setUpdated(ZonedDateTime updated) {
         this.updated = updated;
     }
 }
