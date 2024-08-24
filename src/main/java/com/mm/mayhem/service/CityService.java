@@ -54,6 +54,10 @@ public class CityService {
         return cityRepository.save(city);
     }
 
+    public City saveCity(City city) {
+        return cityRepository.save(city);
+    }
+
     public Double calculateDistanceBetweenCities(City city1, City city2) {
         // Calculate distance in miles using the Haversine formula
         Point location1 = city1.getLocation();

@@ -39,4 +39,8 @@ public class StateRegionService {
     public Optional<List<StateRegion>> getStateRegionsByCountry(Country country) {
         return stateRegionRepository.findStateRegionsByCountry(country);
     }
+
+    public StateRegion saveStateRegion(StateRegion stateRegion) {
+        return stateRegionRepository.save(stateRegion);
+    }
 }
