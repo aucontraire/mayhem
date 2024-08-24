@@ -36,13 +36,19 @@ public class GeonamesClientJson {
                 GEONAMES_BASE_URL, query, query, featureClass, countryCode, env.getProperty("mayhem.geonames.username"));
     }
 
-    private List<Geoname> filterGeonames(List<Geoname> geonameList, String stateRegionName) {
+    private List<Geoname> filterGeonames(List<Geoname> geonameList, String stateRegionName, Boolean isStrict) {
         List<Geoname> filteredGeonames = new ArrayList<>();
         for (Geoname geoname : geonameList) {
             String adminName1 = geoname.getAdminName1();
             String fCode = geoname.getFcode();
-            if (adminName1.contains(stateRegionName) && featureCodes.contains(fCode)) {
-                filteredGeonames.add(geoname);
+            if (featureCodes.contains(fCode)) {
+                if (isStrict) {
+                    if (adminName1.contains(stateRegionName)) {
+                        filteredGeonames.add(geoname);
+                    }
+                } else {
+                    filteredGeonames.add(geoname);
+                }
             }
         }
         logger.info("Geonames match count: " + filteredGeonames.size());
@@ -117,9 +123,9 @@ public class GeonamesClientJson {
         }
     }
 
-    public Optional<Coordinates> getCityCoordinates(City city) {
+    public Optional<Coordinates> getCityCoordinates(City city, Boolean isStrict) {
         GeonamesResponse geonamesResponse = getCity(city);
-        List<Geoname> cityGeonameList = filterGeonames(geonamesResponse.getGeonames(), city.getStateRegion().getName());
+        List<Geoname> cityGeonameList = filterGeonames(geonamesResponse.getGeonames(), city.getStateRegion().getName(), isStrict);
         if (cityGeonameList.isEmpty()) {
             return Optional.empty();
         }
